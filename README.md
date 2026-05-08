@@ -1,3 +1,4 @@
+# Edge Detector
 This program allows you to input a .bmp image and then detect edges in the image using three parameters: sigma, high threshold and low threshold. Included in the program folder are several bitmap images to use with this program:
 - ang2.bmp
 - cameraman.bmp
@@ -23,3 +24,6 @@ LOW THRESHOLD: Pixels below this value are definetely not part of an edge. Pixel
 Tip: for ang2.bmp, try the following values: sigma = 2, high threshold = 10, low threshold = 0.5.
 
 Tip: larger sigma means larger kernel size which means longer processing time!
+
+# Result
+[Result of edge detector](docs/eiffel_gif.gif)
