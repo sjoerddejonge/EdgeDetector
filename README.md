@@ -8,6 +8,11 @@ threshold and low threshold. Included in the program folder are several bitmap i
 
 Alternatively, you can use your own .bmp images.
 
+## Result
+This animation below shows the input image (grayscale) and result (black and white):
+
+![Result of edge detector](docs/eiffel_gif.gif)
+
 ## How to run
 To read an image, submit the full file path as filename, like this:
 
@@ -38,8 +43,3 @@ fully displayed.
 **Tip**: for ang2.bmp, try the following values: sigma = 2, high threshold = 10, low threshold = 0.5.
 
 **Tip**: larger sigma means larger kernel size which means longer processing time!
-
-## Result
-This animation below shows the input image (grayscale) and result (black and white):
-
-![Result of edge detector](docs/eiffel_gif.gif)
