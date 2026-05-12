@@ -8,14 +8,14 @@
 
 #include "Matrix.h"
 
-class Image : public Matrix{
+class Image : public Matrix<uint8_t> {
 private:
     bool grayscale;
 
 public:
     // Class functions:
     Image(int width, int height, int layers, bool grayscale);  // Constructs an image
-    void convolve(const Matrix& kernel);
+    void convolve(const Matrix<double>& kernel);
     void blurGaussian(double sigma, int kernel_type);
     void rgbToGrayscale(); // Converts RGB/BGR image to grayscale
     void reformatOrigin(bool isTopDown); // Reformats the origin of the image to be top-down or bottom-up

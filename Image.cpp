@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "Image.h"
+#include "include/Image.h"
 
 Image::Image(int width, int height, int layers, bool grayscale) : Matrix(width, height, layers) {
     this->grayscale = grayscale;
@@ -111,7 +111,7 @@ double Image::getImageAverage() {
  * elements are then multiplied and summed. The result will be the new value for the current pixel. A larger kernel
  * results in a larger amount of operations per pixel.
  */
-void Image::convolve(const Matrix &kernel) {
+void Image::convolve(const Matrix<double> &kernel) {
     // Copy of this image that will overwrite the current image at the end of the convolution
     Image copy = *this;
     // If the kernel has an even size, there is no centerpoint and convolution cannot be done:
@@ -135,16 +135,12 @@ void Image::convolve(const Matrix &kernel) {
     const int k_height = kernel.getHeight();
     const std::vector<double>& k_data = kernel.getData();
 
-    double acc; // Accumulator for the new pixel value. If image is in color, this represents the blue channel.
-    double acc_g; // Accumulator for the green pixel value if image is in color.
-    double acc_r; // Accumulator for the red pixel value if image is in color.
-
     // Looping through the image:
     for (int y = 0; y < im_height; ++y){
         for (int x = 0; x < im_width; ++x){
-            acc = 0;
-            acc_g = 0;
-            acc_r = 0;
+            double acc = 0;     // Accumulator for the new pixel value. If image is in color, this represents the blue channel.
+            double acc_g = 0;   // Accumulator for the green pixel value if image is in color.
+            double acc_r = 0;   // Accumulator for the red pixel value if image is in color.
 
             // For each pixel in the image, this loops through the kernel elements:
             for (int r = 0; r < k_height; ++r){   // For each kernel row

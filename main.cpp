@@ -10,15 +10,16 @@
 #include <cmath>
 #include <algorithm>
 #include "BMP.h"
-#include "Matrix.h"
-#include "Image.h"
+#include "gaussian.h"
+#include "include/Matrix.h"
+#include "include/Image.h"
 
 /// Functions:
 // Image input/output:
 Image readBMP(const std::string& filename); // Read .bmp image as Image
 void writeBMP(Image input, const std::string& filename_write); // Write Image to .bmp image file
 // Image manipulation:
-Image convolve(Image& image, const Matrix& kernel); // Convolve Image with kernel
+Image convolve(Image& image, const Matrix<double>& kernel); // Convolve Image with kernel
 Image blurGaussian(Image& image, double sigma, int kernel_type); // Blur Image with Gaussian or its derivatives
 Image gradientMagnitude(const Image& im_derivX, const Image& im_derivY); // Calculate the gradient magnitude using the Gaussian derivative of x and y of an Image.
 Image nonMaximumSuppression(const Image& gradMag, const Image& im_derivX, const Image& im_derivY); // Suppress all non-maximum values in the gradient magnitude Image.
@@ -182,8 +183,8 @@ Image readBMP(const std::string& filename){
     BMP input_bmp(filename);
     // Create an empty Image, equal to the size of the BMP, we assume the image is not grayscale:
     Image input_bmp_image(input_bmp.dib_header.width, input_bmp.dib_header.height, input_bmp.dib_header.bit_count / 8, false);
-    // Read image pixel data from the bmp as vector<double>:
-    std::vector<double> im_data(input_bmp.data.begin(), input_bmp.data.end());
+    // Read image pixel data from the bmp as vector<uint8_t>:
+    std::vector<uint8_t> im_data(input_bmp.data.begin(), input_bmp.data.end());
     // Fill the empty Image with the image pixel data:
     input_bmp_image.setData(im_data);
     // Convert rgb to grayscale:
@@ -202,9 +203,9 @@ void writeBMP(Image input, const std::string& filename_write){
     input.matrixToImage(); // Transform the data to be into the 0 - 255 range.
     input.reformatOrigin(true);
     // Create a new vector<uint8_t> to store the image data as integers (which is needed for bmp):
-    std::vector<uint8_t> image_data(input.getData().begin(), input.getData().end());
-    uint32_t width = input.getWidth();
-    uint32_t height = input.getHeight();
+    const std::vector<uint8_t> image_data(input.getData().begin(), input.getData().end());
+    const int32_t width = input.getWidth();
+    const int32_t height = input.getHeight();
     bool has_alpha = true;
     if (input.getLayers() <= 3){
         has_alpha = false;
@@ -221,7 +222,7 @@ void writeBMP(Image input, const std::string& filename_write){
  * elements are then multiplied and summed. The result will be the new value for the current pixel. A larger kernel
  * results in a larger amount of operations per pixel.
  */
-Image convolve(Image& image, const Matrix& kernel){
+Image convolve(Image& image, const Matrix<double>& kernel){
     // Output matrix that will be returned by this function starts as a copy of the input image matrix:
     Image output = image;
     // If the kernel has an even size, there is no centerpoint and convolution cannot be done:
@@ -239,7 +240,7 @@ Image convolve(Image& image, const Matrix& kernel){
     const int im_width = image.getWidth();
     const int im_height = image.getHeight();
     const int channels = image.getLayers();  // Either 3 or 4 channels (BGR or BGRA)
-    const std::vector<double>& im_data = image.getData();
+    const std::vector<uint8_t>& im_data = image.getData();
     // Creating constant copies of the kernel parameters:
     const int k_width = kernel.getWidth();
     const int k_height = kernel.getHeight();
@@ -320,32 +321,32 @@ Image convolve(Image& image, const Matrix& kernel){
  */
 Image blurGaussian(Image& image, double sigma, int kernel_type){
     if (kernel_type <= 0 || kernel_type >= 3){
-        std::cout << "ERROR with blurGaussian(): Invalid kernel_type. Using default kernel_type = " << 0 << std::endl;
+        std::cerr << "ERROR with blurGaussian(): Invalid kernel_type. Using default kernel_type = " << 0 << std::endl;
     }
-    int size = 2* (int) ceil(sigma*4)+1;   // Calculate the kernel size based on the sigma
-    Matrix g_hor(size, 1, 1);      // Empty horizontal kernel matrix of 1 x size
-    Matrix g_ver(1, size, 1);      // Empty vertical  kernel matrix of size x 1
+    int size = 2* static_cast<int>(ceil(sigma * 4))+1;   // Calculate the kernel size based on the sigma
+    Matrix<double> g_hor(size, 1, 1);      // Empty horizontal kernel matrix of 1 x size
+    Matrix<double> g_ver(1, size, 1);      // Empty vertical  kernel matrix of size x 1
     // Constructing Gaussian kernels:
     switch (kernel_type){
         case 0:     // Normal Gaussian blur
-            g_hor = g_hor.constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
             break;
         case 1:     // Derivative of X
-            g_hor = g_hor.constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernel((g_ver.getWidth()), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernel((g_ver.getWidth()), g_ver.getHeight(), sigma);
             break;
         case 2:     // Derivative of Y
-            g_hor = g_hor.constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
             break;
         case 3:     // Derivative of XY
-            g_hor = g_hor.constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
             break;
         default:    // Normal Gaussian blur
-            g_hor = g_hor.constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
             break;
     }
     // Convolve our image with the two Gaussian matrices, resulting in a new matrix:
