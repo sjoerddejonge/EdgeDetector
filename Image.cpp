@@ -6,6 +6,8 @@
 #include <cmath>
 #include "include/Image.h"
 
+#include "gaussian.h"
+
 Image::Image(int width, int height, int layers, bool grayscale) : Matrix(width, height, layers) {
     this->grayscale = grayscale;
 }
@@ -21,16 +23,16 @@ void Image::rgbToGrayscale() {
     const int channels = getLayers();  // Either 3 or 4 channels (BGR or BGRA)
     const int im_width = getWidth();
     const int im_height = getHeight();
-    const std::vector<double> im_data = getData();
+    const std::vector<uint8_t> im_data = getData();
     // Cycle through every pixel of the image:
     for (int y = 0; y < im_height; ++y){
         for (int x = 0; x < im_width; ++x){
             // (Bitmaps are actually in BGR format, but that does not matter for the outcome of this function)
-            int R = (int) im_data[channels * (y * im_width + x) + 0]; // Red value of pixel
-            int G = (int) im_data[channels * (y * im_width + x) + 1]; // Green value of pixel
-            int B = (int) im_data[channels * (y * im_width + x) + 2]; // Blue value of pixel
+            const int R = im_data[channels * (y * im_width + x) + 0]; // Red value of pixel
+            const int G = im_data[channels * (y * im_width + x) + 1]; // Green value of pixel
+            const int B = im_data[channels * (y * im_width + x) + 2]; // Blue value of pixel
             // Calculate the intensity (grayscale value) of the pixel:
-            int intensity = (int) round((R + G + B) / 3);
+            const int intensity = static_cast<int>(round((R + G + B) / 3));
             // Rewrite the BGR channels of the pixels to match grayscale intensity:
             setData(channels * (y * im_width + x) + 0, intensity);    // B
             setData(channels * (y * im_width + x) + 1, intensity);    // G
@@ -46,7 +48,7 @@ void Image::rgbToGrayscale() {
  * Change the formatting of the image pixel array to correspond with top-down (origin is top left) or bottom-up (origin
  * is bottom left) orientation.
  */
-void Image::reformatOrigin(bool isTopDown) {
+void Image::reformatOrigin(const bool isTopDown) {
     Image output = *this; // Create a copy of this image to write the new pixel structure to.
     // Getting the private, inherited Matrix variables:
     const int width = getWidth();
@@ -58,14 +60,14 @@ void Image::reformatOrigin(bool isTopDown) {
         for (int y = 0; y < height; ++y){
             for (int x = 0; x < width; ++x){
                 output.setData( (layers*(y*width + x) + 0),
-                                getData()[(layers*(((height-1)-y)*width + x) + 0)]);
+                                getData((layers*(((height-1)-y)*width + x) + 0)));
                 output.setData( (layers*(y*width + x) + 1),
-                                getData()[(layers*(((height-1)-y)*width + x) + 1)]);
+                                getData((layers*(((height-1)-y)*width + x) + 1)));
                 output.setData( (layers*(y*width + x) + 2),
-                                getData()[(layers*(((height-1)-y)*width + x) + 2)]);
+                                getData((layers*(((height-1)-y)*width + x) + 2)));
                 if (layers == 4){
                     output.setData( (layers*(y*width + x) + 3),
-                                    getData()[(layers*(((height-1)-y)*width + x) + 3)]);
+                                    getData((layers*(((height-1)-y)*width + x) + 3)));
                 }
             }
         }
@@ -76,14 +78,14 @@ void Image::reformatOrigin(bool isTopDown) {
         for (int y = 0; y < height; ++y){
             for (int x = 0; x < width; ++x){
                 output.setData( (layers*(((height-1)-y)*width + x) + 0),
-                                getData()[(layers*(y*width + x) + 0)]);
+                                getData((layers*(y*width + x) + 0)));
                 output.setData( (layers*(((height-1)-y)*width + x) + 1),
-                                getData()[(layers*(y*width + x) + 1)]);
+                                getData((layers*(y*width + x) + 1)));
                 output.setData( (layers*(((height-1)-y)*width + x) + 2),
-                                getData()[(layers*(y*width + x) + 2)]);
+                                getData((layers*(y*width + x) + 2)));
                 if (layers == 4){
                     output.setData( (layers*(((height-1)-y)*width + x) + 3),
-                                    getData()[(layers*(y*width + x) + 3)]);
+                                    getData((layers*(y*width + x) + 3)));
                 }
             }
         }
@@ -95,10 +97,10 @@ void Image::reformatOrigin(bool isTopDown) {
  * Image::getImageAverage()
  * Calculate the average pixel value of the whole image.
  */
-double Image::getImageAverage() {
+double Image::getImageAverage() const {
     double average = 0;
     // Loop through the image to compute the sum of all elements (stored inside the double 'average'):
-    for (double i : getData()){
+    for (const double i : getData()){
         average += i;
     }
     average /= getData().size(); // Calculate the average by dividing the sum by the amount of elements in the image
@@ -129,7 +131,7 @@ void Image::convolve(const Matrix<double> &kernel) {
     const int im_width = getWidth();
     const int im_height = getHeight();
     const int channels = getLayers();  // Either 3 or 4 channels (BGR or BGRA)
-    const std::vector<double>& im_data = getData();
+    const std::vector<uint8_t>& im_data = getData();
     // Creating constant copies of the kernel parameters:
     const int k_width = kernel.getWidth();
     const int k_height = kernel.getHeight();
@@ -190,7 +192,7 @@ void Image::convolve(const Matrix<double> &kernel) {
             }
         }
     }
-    // Ovewrite the current image with the copy that was processed:
+    // Overwrite the current image with the copy that was processed:
     *this = copy;
 }
 
@@ -207,30 +209,30 @@ void Image::blurGaussian(double sigma, int kernel_type) {
     if (kernel_type <= 0 || kernel_type >= 3){
         std::cout << "ERROR with blurGaussian(): Invalid kernel_type. Using default kernel_type = " << 0 << std::endl;
     }
-    int size = 2* (int) ceil(sigma*4)+1;   // Calculate the kernel size based on the sigma
-    Matrix g_hor(size, 1, 1);      // Empty horizontal kernel matrix of 1 x size
-    Matrix g_ver(1, size, 1);      // Empty vertical  kernel matrix of size x 1
+    int size = 2* static_cast<int>(ceil(sigma * 4))+1;   // Calculate the kernel size based on the sigma
+    Matrix<double> g_hor(size, 1, 1);      // Empty horizontal kernel matrix of 1 x size
+    Matrix<double> g_ver(1, size, 1);      // Empty vertical  kernel matrix of size x 1
     // Constructing Gaussian kernels:
     switch (kernel_type){
         case 0:     // Normal Gaussian blur
-            g_hor = g_hor.constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
             break;
         case 1:     // Derivative of X
-            g_hor = g_hor.constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernel((g_ver.getWidth()), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernel((g_ver.getWidth()), g_ver.getHeight(), sigma);
             break;
         case 2:     // Derivative of Y
-            g_hor = g_hor.constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
             break;
         case 3:     // Derivative of XY
-            g_hor = g_hor.constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernelDerivative(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernelDerivative((g_ver.getWidth()), g_ver.getHeight(), sigma);
             break;
         default:    // Normal Gaussian blur
-            g_hor = g_hor.constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
-            g_ver = g_ver.constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
+            g_hor = constructGaussianKernel(g_hor.getWidth(), g_hor.getHeight(), sigma);
+            g_ver = constructGaussianKernel(g_ver.getWidth(), g_ver.getHeight(), sigma);
             break;
     }
     // Convolve our image with the two Gaussian matrices, resulting in a new matrix:
@@ -260,11 +262,11 @@ Image Image::gradientMagnitude(const Image &im_derivX, const Image &im_derivY) {
     for (int y = 0; y < height; ++y){
         for (int x = 0; x < width; ++x){
             // Index for the 'blue' value of the image, of the current pixel:
-            int b_index = (channels*(y * width+ x)+0);  // image is grayscale so green and red values are the same
+            const int b_index = (channels*(y * width+ x)+0);  // image is grayscale so green and red values are the same
 
             // Gradient magnitude value for that pixel, using the pixels of im_derivX and im_derivY:
             // The formula is: Magnitude = sqrt( derivativeX^2 + derivativeY^2 )
-            double grad_value = sqrt(pow(im_derivX.getData()[b_index],2) + pow(im_derivY.getData()[b_index],2));
+            const double grad_value = sqrt(pow(im_derivX.getData()[b_index],2) + pow(im_derivY.getData()[b_index],2));
 
             // Set the blue pixel value for the output matrix as the calculated gradient:
             copy.setData(b_index,grad_value);
