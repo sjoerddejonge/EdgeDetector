@@ -6,7 +6,7 @@
 #include <cmath>
 #include "include/Image.h"
 
-#include "gaussian.h"
+#include "include/gaussian.h"
 
 Image::Image(int width, int height, int layers, bool grayscale) : Matrix(width, height, layers) {
     this->grayscale = grayscale;

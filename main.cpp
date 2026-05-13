@@ -10,7 +10,7 @@
 #include <cmath>
 #include <algorithm>
 #include "BMP.h"
-#include "gaussian.h"
+#include "include/gaussian.h"
 #include "include/Matrix.h"
 #include "include/Image.h"
 
@@ -26,7 +26,7 @@ Image nonMaximumSuppression(const Image& gradMag, const Image& im_derivX, const 
 void hysteresisThresholding(Image &gradMag, double high_threshold, double low_threshold); // Threshold the found edges using hysteresis thresholding.
 
 /// Variables:
-const double pi = 3.1415926535897;  // Global variable pi
+constexpr double pi = 3.1415926535897;  // Global variable pi
 
 // TODO:
 // - Add support for more image filetypes!

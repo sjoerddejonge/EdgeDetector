@@ -2,7 +2,7 @@
 // Created by Sjoerd de Jonge on 11/05/2026.
 //
 
-#include "gaussian.h"
+#include "include/gaussian.h"
 
 #include <iostream>
 
@@ -27,7 +27,7 @@ Matrix<double> constructGaussianKernel(const int w, const int h, const double si
         //           << std::endl;
     }
     if(w <= 0 || h <= 0){
-        throw std::invalid_argument("constructGaussianKernel: Width and/or height of the Gaussian matrix must be "
+        throw std::invalid_argument("constructGaussianKernel: width and/or height of the Gaussian matrix must be "
                                     "larger than 0");
         // std::cout << "Error: Matrix::constructGaussianKernel. Width and/or height of the Gaussian matrix must be larger "
         //              "than 0. Returning empty 1x1 matrix." << std::endl;

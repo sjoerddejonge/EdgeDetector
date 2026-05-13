@@ -8,6 +8,9 @@
 #include <iostream>
 #include <vector>
 
+/// A matrix of width * height * layers. Contents of the cells are stored in vector<T> data.
+///
+/// Meant for numerical matrices only!
 template <typename T>
 class Matrix {
 private:

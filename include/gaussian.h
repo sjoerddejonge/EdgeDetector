@@ -4,7 +4,7 @@
 
 #ifndef EDGEDETECTOR_GAUSSIAN_H
 #define EDGEDETECTOR_GAUSSIAN_H
-#include "include/Matrix.h"
+#include "Matrix.h"
 
 // Returns a Gaussian matrix with given sigma
 Matrix<double> constructGaussianKernel(int w, int h, double sigma);

@@ -8,6 +8,7 @@
 
 #include "Matrix.h"
 
+/// An image is a type of Matrix where the values range from 0-255.
 class Image : public Matrix<uint8_t> {
 private:
     bool grayscale;
