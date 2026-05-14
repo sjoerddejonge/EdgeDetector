@@ -18,8 +18,8 @@
 #include <vector>
 #include <iostream>
 
-#ifndef EDGEDETECTOR_BMP_H
-#define EDGEDETECTOR_BMP_H
+#ifndef CANNYEDGEDETECTOR_BMP_H
+#define CANNYEDGEDETECTOR_BMP_H
 
 // Data structure for the BMP header.
 // More about the BMP file format: https://en.wikipedia.org/wiki/BMP_file_format
@@ -58,8 +58,8 @@ struct BMP_ColorHeader{
     uint32_t alpha_mask { 0xff000000 };     // Bit mask for the alpha channel
     uint32_t color_space_type { 0x73524742 };   // Default "sRGB" (0x73524742)
     uint32_t unused[16] { 0 };              // Unused data for sRGB color space, not supported by this bmp reader.
-    // 32 bit integers have a size of 4 bytes, 16 bit integers have a size of 2 bytes. The '_t' suffix guarantees
-    // that it is always exactly the size as desclared (int32_t is always 32 bits).
+    // 32 bit integers have a size of 4 bytes, 16-bit integers have a size of 2 bytes. The '_t' suffix guarantees
+    // that it is always exactly the size as declared (int32_t is always 32 bits).
     // The size of this BMP_DIBHeader is therefore 124 bytes (considering the last variable is an array of size 16)
 };
 #pragma pack(pop)
@@ -70,7 +70,7 @@ struct BMP {
     BMP_ColorHeader color_header;
     std::vector<uint8_t> data; // The pixel data of the image
 
-    BMP(const std::string& filename){
+    explicit BMP(const std::string& filename){
         //std::cout << "Default size of file header: " << sizeof(BMP_FileHeader) << std::endl;
         //std::cout << "Default size of DIB header: " << sizeof(BMP_DIBHeader) << std::endl;
         //std::cout << "Default size of color header: " << sizeof(BMP_ColorHeader) << std::endl;
@@ -79,7 +79,7 @@ struct BMP {
         // std::cout << "Bit count is: " << dib_header.bit_count << " bit." << std::endl;
     }
 
-    BMP(int32_t width, int32_t height, bool has_alpha = true){
+    BMP(const int32_t width, const int32_t height, const bool has_alpha = true){
         if (width <= 0 || height <= 0){
             throw std::runtime_error("The image width and height must be positive numbers.");
         }
@@ -107,7 +107,7 @@ struct BMP {
             row_stride = width * 3;
             data.resize(row_stride * height);
 
-            uint32_t  new_stride = make_stride_aligned(4);
+            const uint32_t new_stride = make_stride_aligned(4);
             file_header.file_size = file_header.pixel_offset + data.size() + dib_header.height * (new_stride - row_stride);
         }
     }
@@ -116,19 +116,19 @@ struct BMP {
         std::ifstream inp{ filename, std::ios_base::binary }; // Create an if-stream to open the BMP.
         if (inp) {
             // Read and store an amount of characters in the file_header string equal to the size of file_header.
-            inp.read((char*)&file_header, sizeof(file_header));
+            inp.read(reinterpret_cast<char *>(&file_header), sizeof(file_header));
             // Check if the signature (file format) matches the BMP signature.
             if(file_header.signature != 0x4D42){
                 throw std::runtime_error("Error! Unrecognized file format.");
             }
             // Read and store the DIB header of the bitmap.
-            inp.read((char*)&dib_header, sizeof(dib_header));
+            inp.read(reinterpret_cast<char *>(&dib_header), sizeof(dib_header));
 
             // The BMPColorHeader is used only for transparent images
             if (dib_header.bit_count == 32){
                 // Check if the file has bit mask color information
                 if(dib_header.size >= (sizeof(BMP_DIBHeader) + sizeof(BMP_ColorHeader))){
-                    inp.read((char*)&color_header, sizeof(BMP_ColorHeader));
+                    inp.read(reinterpret_cast<char *>(&color_header), sizeof(BMP_ColorHeader));
                     // Check if the pixel data is stored as BGRA and if the color space type is sRGB
                     check_color_header(color_header);
                 }
@@ -272,4 +272,4 @@ private:
     }
 };
 
-#endif //EDGEDETECTOR_BMP_H
+#endif //CANNYEDGEDETECTOR_BMP_H
