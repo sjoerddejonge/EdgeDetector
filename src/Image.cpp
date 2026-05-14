@@ -8,10 +8,14 @@
 
 #include "../include/gaussian.h"
 
-Image::Image(int width, int height, int layers, bool grayscale) : Matrix(width, height, layers) {
+Image::Image(const int width, const int height, const int layers, bool grayscale) : Matrix(width, height, layers) {
     this->grayscale = grayscale;
 }
 
+// TODO: Make input Matrix templated?
+Image::Image(const Matrix<double>& input) : Matrix(input) {
+    grayscale = getLayers() == 1;
+}
 
 /**
  * void Image::rgbToGrayscale()

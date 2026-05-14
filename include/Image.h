@@ -2,9 +2,8 @@
 // Created by Sjoerd de Jonge on 06/10/2020.
 //
 
-#ifndef EDGEDETECTOR_IMAGE_H
-#define EDGEDETECTOR_IMAGE_H
-
+#ifndef CANNYEDGEDETECTOR_IMAGE_H
+#define CANNYEDGEDETECTOR_IMAGE_H
 
 #include "Matrix.h"
 
@@ -16,6 +15,7 @@ private:
 public:
     // Class functions:
     Image(int width, int height, int layers, bool grayscale);  // Constructs an image
+    explicit Image(const Matrix<double>& input); // Constructs an image using a Matrix<double>
     void convolve(const Matrix<double>& kernel);
     void blurGaussian(double sigma, int kernel_type);
     void rgbToGrayscale(); // Converts RGB/BGR image to grayscale
@@ -28,4 +28,4 @@ public:
 };
 
 
-#endif //EDGEDETECTOR_IMAGE_H
+#endif //CANNYEDGEDETECTOR_IMAGE_H

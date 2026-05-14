@@ -2,8 +2,8 @@
 // Created by Sjoerd de Jonge on 21/07/2020.
 //
 
-#ifndef EDGEDETECTOR_MATRIX_H
-#define EDGEDETECTOR_MATRIX_H
+#ifndef CANNYEDGEDETECTOR_MATRIX_H
+#define CANNYEDGEDETECTOR_MATRIX_H
 
 #include <iostream>
 #include <vector>
@@ -16,7 +16,7 @@ class Matrix {
 private:
     int width;          // Width of the matrix
     int height;         // Height of the matrix
-    int layers;         // In case of a 3D matrix
+    int layers;         // In case of a 3D matrix, the number of layers
     std::vector<T> data;
 
 public:
@@ -32,6 +32,17 @@ public:
         this->height = height;
         this->layers = layers;
         data.resize( width * height * layers, 0);
+    }
+
+    /// Construct a Matrix of type T using a Matrix of type U.
+    template <typename U>
+    explicit Matrix(const Matrix<U>& input_matrix) {
+        width = input_matrix.getWidth();
+        height = input_matrix.getHeight();
+        layers = input_matrix.getLayers();
+        data.resize(width * height * layers);
+        std::vector<U> input_data = input_matrix.getData();
+        std::transform(input_data.begin(), input_data.end(),data.begin(), [](const U& val) {return static_cast<T>(val);});
     }
 
     /// Transform any matrix into the byte image range (0 to 255). Similar to MATLAB's mat2gray, which source code was
@@ -123,4 +134,4 @@ public:
 };
 
 
-#endif //EDGEDETECTOR_MATRIX_H
+#endif //CANNYEDGEDETECTOR_MATRIX_H

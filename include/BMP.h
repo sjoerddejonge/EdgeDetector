@@ -18,8 +18,8 @@
 #include <vector>
 #include <iostream>
 
-#ifndef EDGEDETECTOR_BMP_H
-#define EDGEDETECTOR_BMP_H
+#ifndef CANNYEDGEDETECTOR_BMP_H
+#define CANNYEDGEDETECTOR_BMP_H
 
 // Data structure for the BMP header.
 // More about the BMP file format: https://en.wikipedia.org/wiki/BMP_file_format
@@ -272,4 +272,4 @@ private:
     }
 };
 
-#endif //EDGEDETECTOR_BMP_H
+#endif //CANNYEDGEDETECTOR_BMP_H
