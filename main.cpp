@@ -18,7 +18,7 @@
 /// Functions:
 // Image input/output:
 Image readBMP(const std::string& filename); // Read .bmp image as Image
-void writeBMP(Image input, const std::string& filename_write); // Write Image to .bmp image file
+void writeBMP(Matrix<double> input, const std::string& filename_write); // Write Image to .bmp image file
 // Image manipulation:
 Image convolve(Image& image, const Matrix<double>& kernel); // Convolve Image with kernel
 Image gaussianBlur(Image& image, double sigma, int kernel_type); // Blur Image with Gaussian or its derivatives
@@ -94,14 +94,14 @@ int main() {
         /// Write result to image:
         filename_write = filename;
         filename_write += "_fX.bmp"; // Add suffix to the name to indicate it is the derivative of X
-        writeBMP(Image(deriv_x), filename_write); // Write derivX to .bmp
+        writeBMP(deriv_x, filename_write); // Write derivX to .bmp
 
         /// Blur image with Gaussian derivative of Y (fY):
         Matrix<double> deriv_y = gaussianBlur(input_matrix, sigma, 2);
         /// Write result to image:
         filename_write = filename;
         filename_write += "_fY.bmp"; // Add suffix to the name to indicate it is the derivative of Y
-        writeBMP(Image(deriv_y), filename_write); // Write derivY to .bmp
+        writeBMP(deriv_y, filename_write); // Write derivY to .bmp
 
         /// Calculate gradient magnitude:
         std::cout << "Calculating gradient magnitude...\n";
@@ -109,7 +109,7 @@ int main() {
         /// Write result to image:
         filename_write = filename;
         filename_write += "_GradientMagnitude.bmp";
-        writeBMP(Image(grad_mag), filename_write);
+        writeBMP(grad_mag, filename_write);
 
         /// Non maximum suppression:
         std::cout << "Performing non-maximum suppression..." << std::endl;
@@ -117,7 +117,7 @@ int main() {
         /// Write result to image:
         filename_write = filename;
         filename_write += "_GradientMagnitudeSuppressed.bmp";
-        writeBMP(Image(grad_mag), filename_write);
+        writeBMP(grad_mag, filename_write);
 
         /// Hysteresis thresholding:
         std::cout << "The following information is useful for determining the high and low threshold:" << std::endl;
@@ -147,7 +147,7 @@ int main() {
         /// Write result to image:
         filename_write = filename;
         filename_write += "_EdgeMap.bmp";
-        writeBMP(Image(edge_map), filename_write);
+        writeBMP(edge_map, filename_write);
 
         std::cout << std::endl;
         std::cout << "The resulting edgemap is written to: " << filename_write << std::endl;
@@ -200,15 +200,16 @@ Image readBMP(const std::string& filename){
  * void writeBMP( ... )
  * Writes the Image into a .bmp image file.
  */
-void writeBMP(Image input, const std::string& filename_write){
+void writeBMP(Matrix<double> input, const std::string& filename_write){
     input.matrixToImage(); // Transform the data to be into the 0 - 255 range.
-    input.reformatOrigin(true);
+    Image image = Image(input);
+    image.reformatOrigin(true);
     // Create a new vector<uint8_t> to store the image data as integers (which is needed for bmp):
-    const std::vector<uint8_t> image_data(input.getData().begin(), input.getData().end());
-    const int32_t width = input.getWidth();
-    const int32_t height = input.getHeight();
+    const std::vector<uint8_t> image_data(image.getData().begin(), image.getData().end());
+    const int32_t width = image.getWidth();
+    const int32_t height = image.getHeight();
     bool has_alpha = true;
-    if (input.getLayers() <= 3){
+    if (image.getLayers() <= 3){
         has_alpha = false;
     }
     BMP imageBMP(width,height,has_alpha);       // Create new BMP similar to image size.

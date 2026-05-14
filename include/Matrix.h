@@ -41,8 +41,8 @@ public:
         height = input_matrix.getHeight();
         layers = input_matrix.getLayers();
         data.resize(width * height * layers);
-        std::vector<U> input_data = input_matrix.getData();
-        std::transform(input_data.begin(), input_data.end(),data.begin(), [](const U& val) {return static_cast<T>(val);});
+        std::transform(input_matrix.getData().begin(), input_matrix.getData().end(),
+            data.begin(), [](const U& val) {return static_cast<T>(val);});
     }
 
     /// Transform any matrix into the byte image range (0 to 255). Similar to MATLAB's mat2gray, which source code was
@@ -71,9 +71,9 @@ public:
     }
 
     // Getters, these are constant:
-    int getWidth() const { return width; }
-    int getHeight() const { return height; }
-    int getLayers() const { return layers; }
+    [[nodiscard]] int getWidth() const { return width; }
+    [[nodiscard]] int getHeight() const { return height; }
+    [[nodiscard]] int getLayers() const { return layers; }
     const std::vector<T>& getData() const { return data; } // Returns vector which contains the matrix values
     T getData(int i) const { return data[i]; }
 
