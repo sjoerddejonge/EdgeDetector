@@ -2,7 +2,7 @@
 // Created by Sjoerd de Jonge on 11/05/2026.
 //
 
-#include "include/gaussian.h"
+#include "../include/gaussian.h"
 
 #include <iostream>
 
