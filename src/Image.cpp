@@ -8,7 +8,7 @@
 
 #include "../include/gaussian.h"
 
-Image::Image(const int width, const int height, const int layers, bool grayscale) : Matrix(width, height, layers) {
+Image::Image(const int width, const int height, const int layers, const bool grayscale) : Matrix(width, height, layers) {
     this->grayscale = grayscale;
 }
 
@@ -17,11 +17,6 @@ Image::Image(const Matrix<double>& input) : Matrix(input) {
     grayscale = getLayers() == 1;
 }
 
-/**
- * void Image::rgbToGrayscale()
- * Function to convert RGB/BGR images to grayscale images (which follow the rule R == G == B).
- * Any image that is already in grayscale will remain the same.
- */
 void Image::rgbToGrayscale() {
     // Getting the private, inherited Matrix variables:
     const int channels = getLayers();  // Either 3 or 4 channels (BGR or BGRA)
@@ -47,11 +42,6 @@ void Image::rgbToGrayscale() {
     grayscale = true;
 }
 
-/**
- * void Image::reformatOrigin( ... )
- * Change the formatting of the image pixel array to correspond with top-down (origin is top left) or bottom-up (origin
- * is bottom left) orientation.
- */
 void Image::reformatOrigin(const bool isTopDown) {
     Image output = *this; // Create a copy of this image to write the new pixel structure to.
     // Getting the private, inherited Matrix variables:
@@ -97,10 +87,6 @@ void Image::reformatOrigin(const bool isTopDown) {
     *this = output; // Copy the newly formatted 'output' to this Image.
 }
 
-/**
- * Image::getImageAverage()
- * Calculate the average pixel value of the whole image.
- */
 double Image::getImageAverage() const {
     double average = 0;
     // Loop through the image to compute the sum of all elements (stored inside the double 'average'):

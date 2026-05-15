@@ -10,10 +10,33 @@
 #include <cmath>
 #include <algorithm>
 #include "include/BMP.h"
-#include "include/gaussian.h"
 #include "include/image_processing.h"
 #include "include/Matrix.h"
 #include "include/Image.h"
+
+/**
+ * ---------------
+ * 2026-05 Update:
+ * ---------------
+ * Some decisions to make if continuing/forking this project:
+ *
+ * 1. rgbToGrayscale transform an RGB pixel to an R == G == B pixel. Meaning a pixel is still represented by 3 identical
+ * channel values. Perhaps rgbToGrayscale should be refactored to also shrink the Image size to just one channel.
+ * However, that might require refactoring the other image_processing functions?
+ *
+ * 2. main() function should be refactored into separate functions, perhaps also add a canny() function to
+ * image_processing.h that directly accepts sigma, high threshold, and low threshold at once. The console interaction
+ * should be in a different file.
+ *
+ * 3. Perhaps, besides the interactive console interface, it can also support a command like:
+ * `canny [FILEPATH] --sigma=2 --high-thresh=10 --low-thresh=0.5`
+ * `canny [FILEPATH] -s 2 -H 10 -l 0.5`
+ * And then `canny` or `canny [FILEPATH]` would open the interactive interface where the values for sigma etc. are
+ * asked.
+ *
+ * 4. gaussian.h/gaussian.cpp could be included in image_processing.h/image_processing.cpp.
+ *
+ */
 
 /// Functions:
 // Image input/output:
