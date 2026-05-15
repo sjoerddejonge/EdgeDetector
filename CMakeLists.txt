@@ -13,6 +13,7 @@ add_executable(CannyEdgeDetector
         src/gaussian.cpp
         include/gaussian.h
         src/image_processing.cpp
-        include/image_processing.h)
+        include/image_processing.h
+        include/constants.h)
 # Add ../include as a known include directory so we can use "canny.h" instead of "../include/canny.h"
 target_include_directories(${PROJECT_NAME} PRIVATE include)

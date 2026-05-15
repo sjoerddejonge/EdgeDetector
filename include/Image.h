@@ -16,11 +16,8 @@ public:
     // Class functions:
     Image(int width, int height, int layers, bool grayscale);  // Constructs an image
     explicit Image(const Matrix<double>& input); // Constructs an image using a Matrix<double>
-    void convolve(const Matrix<double>& kernel);
-    void blurGaussian(double sigma, int kernel_type);
     void rgbToGrayscale(); // Converts RGB/BGR image to grayscale
     void reformatOrigin(bool isTopDown); // Reformats the origin of the image to be top-down or bottom-up
-    Image gradientMagnitude(const Image& im_derivX, const Image& im_derivY);
     [[nodiscard]] double getImageAverage() const; // Returns the average value of an image pixel channel
 
     // Getter for class variable grayscale:

@@ -2,11 +2,10 @@
 // Created by Sjoerd de Jonge on 11/05/2026.
 //
 
-#include "../include/gaussian.h"
-
+#include "gaussian.h"
+#include "constants.h"
 #include <iostream>
 
-constexpr double pi = 3.1415926535897;
 
 /// Returns a Gaussian kernel (=a matrix) of w x h with sigma. Width and height must always be odd.
 /// Matrix can be 1D (1xN or Nx1) or 2D (MxN or MxM).
@@ -46,16 +45,16 @@ Matrix<double> constructGaussianKernel(const int w, const int h, const double si
             // Determine whether matrix is 1D-horizontal, 1D-vertical or 2D and construct kernel:
             if (w == 1) {
                 // 1D-vertical Gaussian:
-                g.setData(y * w + x, (1 / sqrt(2 * pi * pow(sigma, 2))) * exp(-(pow(yval, 2)) / (2 * pow(sigma, 2))));
+                g.setData(y * w + x, (1 / sqrt(2 * PI * pow(sigma, 2))) * exp(-(pow(yval, 2)) / (2 * pow(sigma, 2))));
                 sum += g.getData(y * w + x);
             } else if (h == 1) {
                 // 1D-horizontal Gaussian:
-                g.setData(y * w + x, (1 / sqrt(2 * pi * pow(sigma, 2))) * exp(-(pow(xval, 2)) / (2 * pow(sigma, 2))));
+                g.setData(y * w + x, (1 / sqrt(2 * PI * pow(sigma, 2))) * exp(-(pow(xval, 2)) / (2 * pow(sigma, 2))));
                 sum += g.getData(y * w + x);
             } else {
                 // 2D Gaussian:
                 // Calculating the value for the Gaussian, using 1/(2*pi*sigma^2) * e^((x^2 + y^2)/2*sigma^2):
-                g.setData(y * w + x, (1 / (2 * pi * pow(sigma, 2.0))) *
+                g.setData(y * w + x, (1 / (2 * PI * pow(sigma, 2.0))) *
                                       exp(-(pow(xval, 2.0) + pow(yval, 2.0)) / (2 * pow(sigma, 2.0))));
                 sum += g.getData(y * w + x);
             }
@@ -106,20 +105,20 @@ Matrix<double> constructGaussianKernelDerivative(const int w, const int h, const
                 // This formula, and the other derivative formulas below, should start with a negative sign, but due to the
                 // different way coordinates are handled in images vs graphs, this is omitted to compensate for the
                 // difference.
-                g.setData(y*w+x, (yval)/(pow(sigma, 3)*sqrt(2*pi))*exp(-(pow(yval, 2))/(2*pow(sigma, 2))));
+                g.setData(y*w+x, (yval)/(pow(sigma, 3)*sqrt(2*PI))*exp(-(pow(yval, 2))/(2*pow(sigma, 2))));
             } else if (h == 1) {
                 // 1D-horizontal Gaussian:
                 // Formula used is: (x / (sigma^3*sqrt(2*pi)) * exp((-x^2)/(2*sigma^2))
-                g.setData(y*w+x, (xval)/(pow(sigma, 3)*sqrt(2*pi))*exp(-(pow(xval, 2))/(2*pow(sigma, 2))));
+                g.setData(y*w+x, (xval)/(pow(sigma, 3)*sqrt(2*PI))*exp(-(pow(xval, 2))/(2*pow(sigma, 2))));
             } else {
                 // 2D Gaussian:
                 // Calculating the value for the derivative of a Gaussian
                 if (respectToX){
                     // Formula used is: (x)/(2*pi*sigma^4) * exp(-(x^2+y^2)/(2*sigma^2))
-                    g.setData(y*w+x, (xval)/(2*pi*pow(sigma,4))*exp(-(pow(xval,2)+pow(yval,2))/(2*pow(sigma,2))));
+                    g.setData(y*w+x, (xval)/(2*PI*pow(sigma,4))*exp(-(pow(xval,2)+pow(yval,2))/(2*pow(sigma,2))));
                 } else {
                     // Formula used is: -(y)/(2*pi*sigma^4) * exp(-(x^2+y^2)/(2*sigma^2))
-                    g.setData(y*w+x, (yval)/(2*pi*pow(sigma,4))*exp(-(pow(xval,2)+pow(yval,2))/(2*pow(sigma,2))));
+                    g.setData(y*w+x, (yval)/(2*PI*pow(sigma,4))*exp(-(pow(xval,2)+pow(yval,2))/(2*pow(sigma,2))));
                 }
             }
         }

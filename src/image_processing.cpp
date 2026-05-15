@@ -4,14 +4,13 @@
 
 #include "image_processing.h"
 #include "gaussian.h"
-
-constexpr double pi = 3.1415926535897;
+#include "constants.h"
 
 // TODO: Decide whether input and output should be Matrix<double>, as it does represent an image (which is uint8_t).
 // TODO: Make templated Matrix<T> for input, kernel, and output if needed.
 /// Convolution on a Matrix with a kernel Matrix. The input Matrix represents a picture.
 Matrix<double> convolve(const Matrix<double>& input, const Matrix<double>& kernel) {
-    Matrix<double> output = Matrix<double>(input.getWidth(), input.getHeight(), input.getLayers());
+    auto output = Matrix<double>(input.getWidth(), input.getHeight(), input.getLayers());
 
     // Kernel should have an odd size (width AND height):
     if (kernel.getWidth() % 2 == 0 || kernel.getHeight() % 2 == 0){
@@ -212,7 +211,7 @@ Matrix<double> nonMaximumSuppression(const Matrix<double>& gradMag, const Matrix
             const int index = (channels*(y * width+ x)+0);
             // Formula for direction: direction = arctan(derivY/derivX)
             double direction = std::atan(im_derivY.getData()[index]/im_derivX.getData()[index]);
-            direction = direction * 180/pi; // Convert direction to degrees
+            direction = direction * 180/PI; // Convert direction to degrees
             if (direction < 0){ // if direction is negative degrees
                 direction = 360 + direction; // find positive equivalent
             }
